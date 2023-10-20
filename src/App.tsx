@@ -1,35 +1,49 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from "react";
+import reactLogo from "./assets/react.svg";
+import viteLogo from "/vite.svg";
+import axios from "axios";
+import "./App.css";
+import Button from "@mui/material/Button";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [events, setEvents] = useState([]);
+
+  const apiKey = import.meta.env.VITE_API_KEY;
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+  const apiPackage = import.meta.env.VITE_PACKAGE;
+  const apiResource = import.meta.env.VITE_RESOURCE;
+
+  const handleEvent = () => {
+    axios
+      .get(
+        `${apiBaseUrl}/${apiPackage}/v2/${apiResource}.json?apikey=${apiKey}`
+      )
+      .then((response) => {
+        console.log(response);
+        setEvents(response.data._embedded.events);
+      });
+  };
 
   return (
     <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <h1>Events</h1>
+      <Button onClick={handleEvent}>Show available events</Button>
+      <ul>
+        {events.map((event) => {
+          return (
+            <li key={event.id}>
+              <a href={event.url}>{event.name}</a>
+              <img
+                src={event.images[0].url}
+                width={event.images[0].width}
+                heigth={event.images[0].height}
+              ></img>
+            </li>
+          );
+        })}
+      </ul>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
